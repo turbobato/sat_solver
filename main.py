@@ -55,13 +55,20 @@ class CNF:
                 self.clauses.append(clause)
                 line = f.readline()
 
+    # returns true if there is an empty clause, in which case the formula is not satisfiable
+    def exists_empty_clause(self):
+        for clause in self.clauses : 
+            if not(clause) : 
+                return True
+        return False
+
     # returns true if it's satisfiable, false if it's not, and a list of values that satisfies it if yes
     def naive_solving(self):
         # base case  1 : CNF is empty
         if not (self.clauses):
             return (True, self.variables_values)
         # base case 2 : all variables are assigned but CNF is not empty
-        elif self.clauses and not (variable_not_assigned(self.variables_values)[0]):
+        elif self.exists_empty_clause():
             return (False, None)
         # else start backtracking :
         else:
@@ -81,6 +88,28 @@ class CNF:
                 self.clauses = self.assign_and_simplify(var, 0)  # assign to false
                 return self.naive_solving()  # try to solve
             return
+    # if a clause is a unit clause, it forces the value of one variable
+    # returns a tuple (bool, var, value) where bool is true if unit clause exists,
+    # var is the variable in that unit clause and value the value it is forced to take
+    def unit_propagation(self) :
+        unit_clause = False
+        for clause in self.clauses :
+            if len(clause) == 1 :
+                var = clause[0][0]
+                polarity = clause[0][1]
+                if polarity > 0 :
+                    return (True, var, 1)
+                else :
+                    return (True, var, 0)
+        return (False, None, None)
+
+    # 
+    def pure_litteral_elimination(self):
+        pass
+
+    # use unit propagation and pure litteral elimination
+    def improved_solving(self) :
+        pass 
 
     # assign var to value and  return the simplified CNF
     def assign_and_simplify(self, var, value):
